@@ -66,12 +66,3 @@ Este projeto utiliza um ESP32 para monitorar o peso de um objeto utilizando um s
 ## Configuração do MQTT
 
 Este projeto utiliza um servidor MQTT público para publicar os dados. O broker utilizado é o `broker.hivemq.com`. Caso queira usar um broker diferente, altere a variável `mqtt_server` e configure a porta (`mqtt_port`) no código.
-
-### Explicação do conteúdo:
-
-- **Descrição:** Explica o objetivo do projeto e suas funcionalidades principais.
-- **Requisitos:** Detalha os componentes de hardware necessários e as bibliotecas de software.
-- **Instalação:** Orientações sobre como configurar o ambiente de desenvolvimento e as bibliotecas necessárias.
-- **Configuração do MQTT:** Instruções sobre como configurar o servidor MQTT.
-- **Uso:** Como carregar o código no ESP32, monitorar os dados no display e consumir os dados via MQTT.
-- **Código Fonte:** Um snippet do código fonte para facilitar o entendimento.
