@@ -1,5 +1,8 @@
 # Projeto de Monitoramento de Peso com ESP32, Sensor de Carga e MQTT
 
+## Simulação WOKWI
+[Wokwi](https://wokwi.com/projects/414805292834012161)
+
 ## Descrição
 
 Este projeto utiliza um ESP32 para monitorar o peso de um objeto utilizando um sensor de carga HX711. Os dados de peso são exibidos em um display LCD 20x4 e também enviados para um broker MQTT, juntamente com a data e a hora, para monitoramento remoto. O sistema conecta-se à rede Wi-Fi para realizar a comunicação e utiliza o protocolo MQTT para publicar os dados.
@@ -72,5 +75,3 @@ Este projeto utiliza um servidor MQTT público para publicar os dados. O broker 
 - **Configuração do MQTT:** Instruções sobre como configurar o servidor MQTT.
 - **Uso:** Como carregar o código no ESP32, monitorar os dados no display e consumir os dados via MQTT.
 - **Código Fonte:** Um snippet do código fonte para facilitar o entendimento.
-
-Esse README pode ser expandido ou ajustado conforme a necessidade do seu projeto!
