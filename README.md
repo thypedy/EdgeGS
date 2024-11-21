@@ -1,4 +1,4 @@
-# Projeto de Monitoramento de Peso com ESP32, Sensor de Carga e MQTT
+# Projeto NovaGreen(Biomassa para energia)
 
 ## Simulação WOKWI
 [Wokwi](https://wokwi.com/projects/414805292834012161)
