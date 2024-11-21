@@ -1,5 +1,7 @@
 # Projeto NovaGreen(Biomassa para energia)
 
+![Projeto](./wokwi.png)
+
 ## Simulação WOKWI
 [Wokwi](https://wokwi.com/projects/414805292834012161)
 
