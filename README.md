@@ -4,7 +4,7 @@
 
 ## Simulação WOKWI
 [Wokwi](https://wokwi.com/projects/414805292834012161)
-[HiveMQ]([https://wokwi.com/projects/414805292834012161](https://www.hivemq.com/demos/websocket-client/))
+[HiveMQ](https://www.hivemq.com/demos/websocket-client/)
 
 ## Descrição
 
