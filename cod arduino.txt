@@ -1,0 +1,152 @@
+#include <Arduino.h>
+#include "HX711.h"
+#include <LiquidCrystal_I2C.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include <Wire.h>
+#include <RTClib.h>
+#include <ArduinoJson.h>
+
+#define I2C_ADDR    0x27
+#define LCD_COLUMNS 20
+#define LCD_LINES   4
+
+const int LOADCELL_DOUT_PIN = 16;
+const int LOADCELL_SCK_PIN = 4;
+
+LiquidCrystal_I2C lcd(I2C_ADDR, LCD_COLUMNS, LCD_LINES);
+HX711 scale;
+RTC_DS1307 rtc;
+
+// ---- Configurações de Wi-Fi e MQTT
+const char* ssid = "Wokwi-GUEST";
+const char* password = "";
+const char* mqtt_server = "broker.hivemq.com";
+const int mqtt_port = 1883;
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+const char* topic_data = "esp32/weightData";
+
+void connectWiFi() {
+  Serial.print("Conectando ao Wi-Fi");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWi-Fi Conectado!");
+}
+
+void connectMQTT() {
+  while (!client.connected()) {
+    String client_id = "esp32-client-";
+    client_id += String(WiFi.macAddress());
+    Serial.printf("Conectando ao broker MQTT como %s\n", client_id.c_str());
+
+    if (client.connect(client_id.c_str())) {
+      Serial.println("Conectado ao broker MQTT!");
+    } else {
+      Serial.print("Falha na conexão MQTT, estado: ");
+      Serial.println(client.state());
+      delay(2000);
+    }
+  }
+}
+
+void publishWeightData(float weight) {
+  DateTime now = rtc.now();
+
+  // Criar um objeto JSON
+  StaticJsonDocument<256> data;
+  String day = String(now.year()) + "/" + String(now.month()) + "/" + String(now.day());
+  String time = String(now.hour()) + ":" + String(now.minute()) + ":" + String(now.second());
+
+  // Adicionar os dados ao JSON
+  data["day"] = day;
+  data["time"] = time;
+  data["weight"] = weight;
+
+  // Serializar o JSON para uma string
+  char buffer[256];
+  serializeJson(data, buffer);
+
+  // Publicar o JSON no tópico MQTT
+  client.publish(topic_data, buffer);
+  Serial.println("Dados publicados no MQTT:");
+  Serial.println(buffer);
+}
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin(21, 22); // SDA = GPIO 21, SCL = GPIO 22
+
+  lcd.init();
+  lcd.backlight();
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Initializing...");
+
+  if (!rtc.begin()) {
+    Serial.println("RTC not found");
+    lcd.setCursor(0, 1);
+    lcd.print("RTC not found");
+    while (1);
+  }
+
+  if (!rtc.isrunning()) {
+    Serial.println("RTC not running, setting time...");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+
+  scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+  scale.set_scale();
+
+  connectWiFi();
+  client.setServer(mqtt_server, mqtt_port);
+  connectMQTT();
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("WiFi & MQTT OK");
+}
+
+void loop() {
+  if (!client.connected()) {
+    connectMQTT();
+  }
+  client.loop();
+
+  scale.set_scale();
+  delay(2000);
+  float weight = scale.get_units(10) / 420.00;
+
+  DateTime now = rtc.now();
+  String timeStr = String(now.hour()) + ":" + String(now.minute()) + ":" + String(now.second());
+  String dateStr = String(now.day()) + "/" + String(now.month()) + "/" + String(now.year());
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Weight: ");
+  lcd.print(weight, 2);
+  lcd.print(" kg");
+
+  lcd.setCursor(0, 1);
+  lcd.print("Time: " + timeStr);
+
+  lcd.setCursor(0, 2);
+  lcd.print("Date: " + dateStr);
+
+  Serial.print("Weight: ");
+  Serial.println(weight);
+  Serial.print("Time: ");
+  Serial.println(timeStr);
+  Serial.print("Date: ");
+  Serial.println(dateStr);
+
+  // Publicar dados em JSON
+  publishWeightData(weight);
+
+  delay(1000);
+}
